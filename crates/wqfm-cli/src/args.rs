@@ -34,10 +34,11 @@ pub enum Command {
         /// Output file of weighted quartets (standard output if left out).
         #[arg(short, long)]
         output: Option<PathBuf>,
-        /// Leave out 4-sets that a gene tree leaves unresolved. By default
-        /// they are written as the original script writes them.
+        /// Also write 4-sets that a gene tree leaves unresolved, as
+        /// `((a,b,c,d)); n`, byte for byte as generate_wqrts.py (the wQFM
+        /// jar refuses such lines).
         #[arg(long)]
-        skip_unresolved: bool,
+        keep_unresolved: bool,
         /// Worker threads (0 = all cores).
         #[arg(short = 't', long, default_value_t = 0)]
         threads: usize,

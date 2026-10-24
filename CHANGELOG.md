@@ -7,7 +7,9 @@
   wQFM input format.
 - Command `wqfm-rs amalgamate` and `wqfm-rs score`.
 - `gt2wq`: gene trees to weighted quartets, byte-identical to wQFM's
-  `generate_wqrts.py`; parallel; `--skip-unresolved` for polytomies.
+  `generate_wqrts.py`; parallel; unresolved 4-sets left out unless `--keep-unresolved`.
+- Quartet files are read with the jar's rules (three brackets a side per
+  line; stop at the first empty line).
 - Java `HashMap` iteration order and wQFM's dummy ids, so near-ties go as
   in the jar (decisions 10 to 12).
 - `wqfm-rs compare`: RF and normalised RF between two trees.

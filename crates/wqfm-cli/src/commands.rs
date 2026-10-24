@@ -39,7 +39,7 @@ pub fn run(command: Command) -> Result<(), String> {
         Command::Gt2wq {
             input,
             output,
-            skip_unresolved,
+            keep_unresolved,
             threads,
         } => {
             let text =
@@ -56,7 +56,7 @@ pub fn run(command: Command) -> Result<(), String> {
                 .build()
                 .map_err(|e| e.to_string())?;
             let counts = pool.install(|| count_quartets(&trees))?;
-            let out = counts_to_wqfm_input(&counts, !skip_unresolved);
+            let out = counts_to_wqfm_input(&counts, keep_unresolved);
             match output {
                 Some(path) => {
                     fs::write(&path, out).map_err(|e| format!("{}: {e}", path.display()))?

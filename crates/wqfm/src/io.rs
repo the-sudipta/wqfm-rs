@@ -10,8 +10,8 @@ use crate::quartet::Quartet;
 /// writes them: each pair in text order, the pair with the smaller first
 /// name first, lines sorted as text, weight = count. With
 /// `keep_unresolved`, unresolved 4-sets are written as the script does,
-/// `((a,b,c,d)); n` with the names in text order (wQFM then reads them as
-/// ab|cd).
+/// `((a,b,c,d)); n` with the names in text order; wQFM v1.4 refuses such
+/// lines ("Can't handle polytomy") and stops.
 pub fn counts_to_wqfm_input(c: &QuartetCounts, keep_unresolved: bool) -> String {
     let n = |t: u32| c.names[t as usize].as_str();
     let mut lines: Vec<(String, u32)> = Vec::new();
@@ -70,7 +70,10 @@ pub fn to_wqfm_input(names: &[String], quartets: &[Quartet]) -> String {
 }
 
 /// Reads wQFM's input format, mapping names to the indices of `names`
-/// (new names are appended).
+/// (new names are appended). As in wQFM v1.4, a line must have exactly
+/// three `(` and three `)` (so `((a,b,c,d)); w` is refused) and reading
+/// ends at the first empty line; text after it is an error here, because
+/// wQFM would silently ignore it.
 pub fn parse_wqfm_input(text: &str, names: &mut Vec<String>) -> Result<Vec<Quartet>, String> {
     let mut index: HashMap<String, u32> = names
         .iter()
@@ -78,10 +81,19 @@ pub fn parse_wqfm_input(text: &str, names: &mut Vec<String>) -> Result<Vec<Quart
         .map(|(i, n)| (n.clone(), i as u32))
         .collect();
     let mut out = Vec::new();
-    for (n, line) in text.lines().enumerate() {
+    let mut lines = text.lines().enumerate();
+    for (n, line) in lines.by_ref() {
         let line = line.trim();
         if line.is_empty() {
-            continue;
+            break;
+        }
+        let open = line.matches('(').count();
+        let close = line.matches(')').count();
+        if open != 3 || close != 3 {
+            return Err(format!(
+                "line {}: not a quartet ((a,b),(c,d)); w (an unresolved 4-set?)",
+                n + 1
+            ));
         }
         let cleaned: String = line
             .chars()
@@ -114,6 +126,12 @@ pub fn parse_wqfm_input(text: &str, names: &mut Vec<String>) -> Result<Vec<Quart
             .parse()
             .map_err(|_| format!("line {}: weight {} is not a number", n + 1, parts[4]))?;
         out.push(Quartet::new(t[0], t[1], t[2], t[3], w));
+    }
+    if let Some((n, _)) = lines.find(|(_, l)| !l.trim().is_empty()) {
+        return Err(format!(
+            "line {}: quartets after an empty line (wQFM would ignore them)",
+            n + 1
+        ));
     }
     Ok(out)
 }
@@ -151,5 +169,24 @@ mod tests {
     fn bad_lines_are_errors() {
         assert!(parse_wqfm_input("((a,b),(c)); 1", &mut Vec::new()).is_err());
         assert!(parse_wqfm_input("((a,b),(c,d)); x", &mut Vec::new()).is_err());
+        assert!(parse_wqfm_input("((a,b,c,d)); 1", &mut Vec::new()).is_err());
+        assert!(parse_wqfm_input(
+            "((a,b),(c,d)); 1
+
+((a,c),(b,d)); 1",
+            &mut Vec::new()
+        )
+        .is_err());
+        assert_eq!(
+            parse_wqfm_input(
+                "((a,b),(c,d)); 1
+
+",
+                &mut Vec::new()
+            )
+            .unwrap()
+            .len(),
+            1
+        );
     }
 }

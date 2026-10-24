@@ -24,11 +24,16 @@
    synthetic); 6 are byte-identical, the 7th differs only by item 8.
 7. **Unresolved 4-sets.** For a 4-set that a gene tree leaves unresolved,
    the helper `triplets.soda2103` prints the four taxa without `|`, so the
-   script writes `((a,b,c,d)); n` (names in text order). wQFM v1.4 strips
-   the brackets and reads this line as the quartet ab|cd (`Quartet.java`,
-   `Quartet(String)`), i.e. polytomies add quartets that no gene tree shows.
-   `gt2wq` writes these lines by default, so the pipeline stays identical to
-   the original; `--skip-unresolved` leaves them out.
+   script writes `((a,b,c,d)); n` (names in text order). The wQFM v1.4 jar
+   refuses such a line: it needs exactly three `(` and three `)` per line,
+   prints "Found STAR ... Can't handle polytomy for now" and exits
+   (`FMRunner.populatePerInputLine`; seen on wQFM's own `weird_dataset_1`).
+   So the original pipeline stops on any gene tree with a polytomy. `gt2wq`
+   therefore leaves unresolved 4-sets out by default, and
+   `--keep-unresolved` writes them byte for byte as the script (used to
+   check identity). `parse_wqfm_input` refuses these lines like the jar.
+   (Corrected 2026-10-24: an earlier note said the jar reads the line as
+   ab|cd; its `Quartet(String)` would, but the check above runs first.)
 8. **Blank lines** in the gene tree file are skipped. The script turns a
    blank line into the line `(()); 1`, which wQFM cannot read.
 9. **Parallelism.** Gene trees are counted in parallel (rayon) and the
@@ -50,7 +55,10 @@
 11. **Dummy ids** are `n + depth` (depth 1 at the top level), as
     `TaxaUtils.getDummyTaxonName`; sibling levels share an id.
 12. **Java version.** OpenJDK 19 changed the table size of
-    `new HashMap<>(map)` (`ceil(k / 0.75)` instead of `k / 0.75 + 1`), so the
-    jar's tree can depend on the Java version on inputs with near-ties.
-    wqfm-rs follows OpenJDK 19 and later; the reference runs used OpenJDK
-    21.0.12.1.
+    `new HashMap<>(map)` (`ceil(k / 0.75)` instead of `k / 0.75 + 1`), so in
+    principle the jar's tree can depend on the Java version. Measured: the
+    jar on OpenJDK 17.0.21 and 21.0.12.1 gave the same tree on all 202
+    comparison inputs. wqfm-rs follows OpenJDK 19 and later.
+13. **Empty lines in quartet files.** The jar stops reading at the first
+    empty line. `parse_wqfm_input` does the same but returns an error if
+    quartets follow, since the jar would silently ignore them.
