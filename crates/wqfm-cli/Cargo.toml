@@ -1,0 +1,17 @@
+[package]
+name = "wqfm-cli"
+description = "Command-line interface of wQFM-rs"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "wqfm-rs"
+path = "src/main.rs"
+
+[dependencies]
+wqfm = { path = "../wqfm" }
+clap = { version = "4", features = ["derive"] }
