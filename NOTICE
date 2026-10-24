@@ -1,0 +1,14 @@
+wQFM-rs
+Copyright 2026 Sudipta Kumar Das and Md. Manzurul Hasan
+
+This product is a Rust re-implementation of wQFM:
+
+  Mahim Mahbub, Zahin Wahab, Rezwana Reaz, M. Saifur Rahman and
+  Md. Shamsuzzoha Bayzid. wQFM: highly accurate genome-scale species tree
+  estimation from weighted quartets. Bioinformatics 37(21):3734-3743, 2021.
+  Official code: https://github.com/Mahim1997/wQFM-2020 (version 1.4),
+  licensed under the Apache License, Version 2.0.
+
+Changes: the algorithm of wQFM version 1.4 (initial bipartition, partition
+score, FM refinement, division with dummy taxa, and their tie rules) is
+re-implemented in Rust. No Java code of wQFM is included.

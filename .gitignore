@@ -1,0 +1,19 @@
+# Build output
+/target/
+
+# Local notes and planning drafts (never pushed)
+/.dev-notes/
+/docs/planning/
+
+# Large datasets and raw run output (download with checksums instead)
+/data/raw/
+/bench/work/
+*.part
+*.tmp
+
+# Editors and operating systems
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+.DS_Store
