@@ -1,0 +1,14 @@
+name	wqfm_rs_score	jar_score	total_weight	rf	result
+ex_weighted_quartets_R1_sim5Genes_11Tax	1548	1548	1650	0	pass
+ex_weighted_quartets_R20_noscale_200g_1000b	11615624	11615624	13209000	0	pass
+ex_weighted_quartets_avian_biological_dataset	1228719113	1228719113	2462111516	0	pass
+ex_weird_dataset_1					both refuse: a line ((1,2,49,57)); 6 (polytomy)
+ex_wqrts_11Tax_est_5G_R1	1382	1382	1650	0	pass
+ex_wqrts_15G_100g100b_R1	66137	66137	136500	0	pass
+ex_wqrts_aa	83604	83604	125412	0	pass
+ex_wqrts_nt	97890	97890	125412	0	pass
+ex_wqrts_toy_dataset_QFM_paper	5	5	6	0	pass
+ex_wqrts_toy_dataset_QFM_paper_dummy_weights	158	158	180	0	pass
+pipeline_gtree_11tax_est_5genes_R1	1382	1382	1650	0	pass
+pipeline_gtree_15tax_100g_100b_R1	66137	66137	136500	0	pass
+pipeline_mp-est-avian-biological	194580	194580	194580	0	pass

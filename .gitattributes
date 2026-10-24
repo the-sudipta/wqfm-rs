@@ -1,2 +1,5 @@
 *.wqrts text eol=lf
 *.tre text eol=lf
+*.sha256 text eol=lf
+*.sh text eol=lf
+*.yml text eol=lf

@@ -12,7 +12,10 @@ fn fish_no_strand_matches_the_jar() {
     let ours = amalgamate(&names, &quartets, &Options::default());
     let jar = std::fs::read_to_string(format!("{dir}fish_no_strand.jar.tre")).unwrap();
     let jar = jar.trim();
-    let (rf, _) = nrf(&Tree::parse(&ours.newick).unwrap(), &Tree::parse(jar).unwrap());
+    let (rf, _) = nrf(
+        &Tree::parse(&ours.newick).unwrap(),
+        &Tree::parse(jar).unwrap(),
+    );
     assert_eq!(rf, 0, "topology differs from the jar");
     let (jar_score, _) = Topology::from_newick(jar, &names).unwrap().score(&quartets);
     assert_eq!(ours.score, jar_score);

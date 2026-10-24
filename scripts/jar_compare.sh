@@ -5,11 +5,15 @@
 # Usage: bash scripts/jar_compare.sh <inputs folder> <wQFM-2020 folder> [java heap, default 512m]
 # Writes <inputs folder>/comparison.tsv (one row per input) and prints a
 # summary. Pass = identical topology (RF 0) and identical score.
+# Environment: JAVA = java command inside WSL (default java); TAG = suffix
+# of the jar trees and the table, to keep runs with two Java versions apart.
 
 set -u
 dir=$(cd "$1" && pwd)
 wqfm_dir=$(cd "$2" && pwd)
 heap=${3:-512m}
+java=${JAVA:-java}
+tag=${TAG:-}
 root=$(cd "$(dirname "$0")/.." && pwd)
 rs="$root/target/release/wqfm-rs"
 [ -x "$rs" ] || rs="$rs.exe"
@@ -17,7 +21,7 @@ to_wsl() { wsl.exe -d Ubuntu-24.04 -- wslpath -a "$(cygpath -m "$1")" | tr -d '\
 wqfm_wsl=$(to_wsl "$wqfm_dir")
 dir_wsl=$(to_wsl "$dir")
 
-out="$dir/comparison.tsv"
+out="$dir/comparison$tag.tsv"
 printf 'name\trs_score\tjar_score\ttotal\trf\tnrf\trs_seconds\tjar_seconds\tresult\n' > "$out"
 pass=0
 fail=0
@@ -26,18 +30,18 @@ for f in "$dir"/*.wqrts; do
     t0=$(date +%s.%N)
     "$rs" amalgamate -i "$f" -o "$dir/$name.rs.tre" 2> /dev/null
     t1=$(date +%s.%N)
-    wsl.exe -d Ubuntu-24.04 -- bash -c "cd '$wqfm_wsl' && timeout 600 java -Xmx$heap -jar wQFM-v1.4.jar -i '$dir_wsl/$name.wqrts' -o '$dir_wsl/$name.jar.tre'" > "$dir/$name.jar.log" 2>&1
+    wsl.exe -d Ubuntu-24.04 -- bash -c "cd '$wqfm_wsl' && timeout 600 $java -Xmx$heap -jar wQFM-v1.4.jar -i '$dir_wsl/$name.wqrts' -o '$dir_wsl/$name.jar$tag.tre'" > "$dir/$name.jar$tag.log" 2>&1
     t2=$(date +%s.%N)
     rs_s=$(awk -v a="$t0" -v b="$t1" 'BEGIN { printf "%.3f", b - a }')
     jar_s=$(awk -v a="$t1" -v b="$t2" 'BEGIN { printf "%.3f", b - a }')
-    if [ ! -s "$dir/$name.jar.tre" ]; then
+    if [ ! -s "$dir/$name.jar$tag.tre" ]; then
         printf '%s\t\t\t\t\t\t%s\t%s\tjar failed\n' "$name" "$rs_s" "$jar_s" >> "$out"
         fail=$((fail + 1))
         continue
     fi
     read -r rs_score total _ < <("$rs" score -i "$f" -t "$dir/$name.rs.tre")
-    read -r jar_score _ _ < <("$rs" score -i "$f" -t "$dir/$name.jar.tre")
-    read -r rf nrf < <("$rs" compare "$dir/$name.rs.tre" "$dir/$name.jar.tre")
+    read -r jar_score _ _ < <("$rs" score -i "$f" -t "$dir/$name.jar$tag.tre")
+    read -r rf nrf < <("$rs" compare "$dir/$name.rs.tre" "$dir/$name.jar$tag.tre")
     if [ "$rf" = 0 ] && [ "$rs_score" = "$jar_score" ]; then
         result=pass
         pass=$((pass + 1))
