@@ -42,6 +42,13 @@ pub enum Command {
         #[arg(short = 't', long, default_value_t = 0)]
         threads: usize,
     },
+    /// Robinson–Foulds distance between two trees on the same taxa.
+    Compare {
+        /// First Newick tree.
+        a: PathBuf,
+        /// Second Newick tree.
+        b: PathBuf,
+    },
     /// Scores a tree against weighted quartets (satisfied / total weight).
     Score {
         /// Weighted quartets, one `((a,b),(c,d)); w` per line.

@@ -3,7 +3,7 @@
 use std::fs;
 use std::path::Path;
 
-use wqfm::newick::Tree;
+use wqfm::newick::{nrf, Tree};
 use wqfm::{
     amalgamate, count_quartets, counts_to_wqfm_input, parse_wqfm_input, Options, Quartet, Topology,
 };
@@ -69,6 +69,22 @@ pub fn run(command: Command) -> Result<(), String> {
                 counts.names.len(),
                 counts.counts.len()
             );
+            Ok(())
+        }
+        Command::Compare { a, b } => {
+            let read = |p: &Path| -> Result<Tree, String> {
+                let text = fs::read_to_string(p).map_err(|e| format!("{}: {e}", p.display()))?;
+                Tree::parse(text.trim()).map_err(|e| format!("{}: {e}", p.display()))
+            };
+            let (ta, tb) = (read(&a)?, read(&b)?);
+            let (mut la, mut lb) = (ta.leaf_names(), tb.leaf_names());
+            la.sort();
+            lb.sort();
+            if la != lb {
+                return Err("the trees have different taxa".into());
+            }
+            let (rf, nrf) = nrf(&ta, &tb);
+            println!("{rf}\t{nrf:.6}");
             Ok(())
         }
         Command::Score { input, tree } => {
