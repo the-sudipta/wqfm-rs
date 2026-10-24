@@ -1,0 +1,11 @@
+[package]
+name = "wqfm"
+description = "Exact Rust implementation of wQFM, weighted quartet amalgamation for species trees"
+keywords = ["phylogenetics", "quartet", "species-tree", "bioinformatics"]
+categories = ["science"]
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
