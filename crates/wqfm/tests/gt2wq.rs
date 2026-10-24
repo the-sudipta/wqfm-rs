@@ -14,7 +14,10 @@ fn check(name: &str) {
         .collect();
     let expected = std::fs::read_to_string(format!("{dir}{name}.wqrts")).unwrap();
     let got = counts_to_wqfm_input(&count_quartets(&trees).unwrap(), true);
-    assert!(got == expected, "{name}: output differs from generate_wqrts.py");
+    assert!(
+        got == expected,
+        "{name}: output differs from generate_wqrts.py"
+    );
 }
 
 #[test]

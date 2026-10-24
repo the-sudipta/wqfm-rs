@@ -26,6 +26,7 @@ Input is wQFM's format: one weighted quartet per line.
 wqfm-rs gt2wq -i genetrees.nwk -o quartets.txt
 wqfm-rs amalgamate -i quartets.txt -o tree.nwk
 wqfm-rs score -i quartets.txt -t tree.nwk
+wqfm-rs compare a.nwk b.nwk
 ```
 
 `gt2wq` turns gene trees (one Newick per line) into weighted quartets,
@@ -51,6 +52,8 @@ println!("{}", tree.newick);
 | `crates/wqfm` | the library, one feature per file |
 | `crates/wqfm-cli` | the `wqfm-rs` command |
 | `docs/decisions.md` | design decisions |
+| `validation/` | comparison records with the wQFM jar |
+| `scripts/jar_compare.sh` | runs the jar comparison |
 
 ## Licence
 
