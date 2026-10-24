@@ -5,13 +5,18 @@ method of Mahbub, Wahab, Reaz, Rahman and Bayzid (*Bioinformatics*
 37:3734–3743, 2021). It follows the official Java code (version 1.4) rule by
 rule, including its tie-breaking, so it returns the same tree and score.
 
-## Build
+## Install
+
+From source (Rust 1.98 or later):
 
 ```bash
 cargo build --release
 ```
 
-The binary is `target/release/wqfm-rs`.
+The binary is `target/release/wqfm-rs`. After the first release, binaries
+for Linux, Windows and macOS are attached to each GitHub release, and
+`cargo install wqfm-rs` and a Bioconda package follow (`docs/RELEASING.md`).
+A container: `docker build -t wqfm-rs .`
 
 ## Use
 
@@ -55,6 +60,8 @@ println!("{}", tree.newick);
 | `docs/decisions.md` | design decisions |
 | `validation/` | comparison records with the wQFM jar |
 | `scripts/jar_compare.sh` | runs the jar comparison |
+| `bench/PREREGISTRATION.md` | the benchmark plan, fixed before any run |
+| `packaging/` | Bioconda recipe draft |
 
 ## Licence
 

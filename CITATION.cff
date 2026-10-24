@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: "If you use wQFM-rs, please cite it as below, and cite wQFM."
+title: "wQFM-rs: an exact, fast Rust implementation of wQFM"
+type: software
+authors:
+  - family-names: Das
+    given-names: Sudipta Kumar
+  - family-names: Hasan
+    given-names: Md. Manzurul
+license: Apache-2.0
+repository-code: "https://github.com/the-sudipta/wqfm-rs"
+version: 0.1.0
+references:
+  - type: article
+    title: "wQFM: highly accurate genome-scale species tree estimation from weighted quartets"
+    authors:
+      - family-names: Mahbub
+        given-names: Mahim
+      - family-names: Wahab
+        given-names: Zahin
+      - family-names: Reaz
+        given-names: Rezwana
+      - family-names: Rahman
+        given-names: M. Saifur
+      - family-names: Bayzid
+        given-names: Md. Shamsuzzoha
+    journal: Bioinformatics
+    volume: 37
+    start: 3734
+    end: 3743
+    year: 2021
+    doi: 10.1093/bioinformatics/btab428

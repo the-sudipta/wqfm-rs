@@ -237,7 +237,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "wqfm-cli"
+name = "wqfm-rs"
 version = "0.1.0"
 dependencies = [
  "clap",

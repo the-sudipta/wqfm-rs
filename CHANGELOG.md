@@ -15,5 +15,8 @@
 - `wqfm-rs compare`: RF and normalised RF between two trees.
 - Jar comparison: 202 of 203 inputs identical in topology and score
   (`validation/`).
+- Packaging: release workflow (5 targets, draft release with SHA-256
+  sums), Dockerfile, CITATION.cff, crates.io metadata (the command crate is
+  now named `wqfm-rs`), Bioconda recipe draft.
 - Golden tests: optimum on noise-free inputs, noisy inputs within 10 % of the
   optimum, input round trip.

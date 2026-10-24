@@ -1,0 +1,43 @@
+# Draft Bioconda recipe (recipes/wqfm-rs/meta.yaml in bioconda-recipes).
+# Before submitting: set the version, and the sha256 of the GitHub release
+# source archive (https://github.com/the-sudipta/wqfm-rs/archive/v{{ version }}.tar.gz).
+
+{% set version = "1.0.0" %}
+
+package:
+  name: wqfm-rs
+  version: {{ version }}
+
+source:
+  url: https://github.com/the-sudipta/wqfm-rs/archive/v{{ version }}.tar.gz
+  sha256: SET_AFTER_RELEASE
+
+build:
+  number: 0
+  run_exports:
+    - {{ pin_subpackage("wqfm-rs", max_pin="x") }}
+
+requirements:
+  build:
+    - {{ compiler("rust") }}
+    - cargo-bundle-licenses
+
+test:
+  commands:
+    - wqfm-rs --version
+    - wqfm-rs --help
+
+about:
+  home: https://github.com/the-sudipta/wqfm-rs
+  license: Apache-2.0
+  license_family: APACHE
+  license_file:
+    - LICENSE
+    - NOTICE
+    - THIRDPARTY.yml
+  summary: Exact, fast Rust implementation of wQFM (weighted quartets and gene trees to species trees)
+  dev_url: https://github.com/the-sudipta/wqfm-rs
+
+extra:
+  recipe-maintainers:
+    - the-sudipta

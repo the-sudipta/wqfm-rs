@@ -1,0 +1,6 @@
+target/
+.git/
+.dev-notes/
+docs/planning/
+bench/work/
+data/raw/

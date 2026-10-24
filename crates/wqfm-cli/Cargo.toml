@@ -1,11 +1,15 @@
 [package]
-name = "wqfm-cli"
-description = "Command-line interface of wQFM-rs"
+name = "wqfm-rs"
+description = "Exact, fast Rust implementation of wQFM: weighted quartets and gene trees to species trees"
+readme = "../../README.md"
+keywords = ["phylogenetics", "quartet", "species-tree", "bioinformatics"]
+categories = ["science", "command-line-utilities"]
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
 repository.workspace = true
+homepage.workspace = true
 rust-version.workspace = true
 
 [[bin]]
@@ -13,6 +17,6 @@ name = "wqfm-rs"
 path = "src/main.rs"
 
 [dependencies]
-wqfm = { path = "../wqfm" }
+wqfm = { path = "../wqfm", version = "0.1.0" }
 clap = { version = "4", features = ["derive"] }
 rayon = "1"
