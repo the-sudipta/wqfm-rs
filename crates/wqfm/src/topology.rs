@@ -41,7 +41,7 @@ impl Topology {
         Ok(Self::from_node(&root, names.len()))
     }
 
-    fn from_node(root: &Node, m: usize) -> Self {
+    pub(crate) fn from_node(root: &Node, m: usize) -> Self {
         let g = Graph::from_rooted(root);
         let mut dist = vec![u32::MAX; m * m];
         for t in 0..m as u32 {

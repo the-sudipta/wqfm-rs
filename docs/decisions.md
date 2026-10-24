@@ -15,3 +15,22 @@
 5. **Shared tree builder.** The exhaustive oracle and random trees use one
    stepwise-addition builder (`edge_tree.rs`), giving the same Newick as the
    Q-MAWS code.
+6. **`gt2wq` follows `generate_wqrts.py` byte for byte.** For every gene
+   tree, each 4-set of its taxa gets its induced topology (four-point
+   condition on path lengths); counts are summed over trees. Lines are
+   written as the script writes them: each pair in text order, the pair
+   with the smaller first name first, lines sorted as text, `key count`.
+   Checked on 7 inputs (2 from wQFM, the avian biological set, 4
+   synthetic); 6 are byte-identical, the 7th differs only by item 8.
+7. **Unresolved 4-sets.** For a 4-set that a gene tree leaves unresolved,
+   the helper `triplets.soda2103` prints the four taxa without `|`, so the
+   script writes `((a,b,c,d)); n` (names in text order). wQFM v1.4 strips
+   the brackets and reads this line as the quartet ab|cd (`Quartet.java`,
+   `Quartet(String)`), i.e. polytomies add quartets that no gene tree shows.
+   `gt2wq` writes these lines by default, so the pipeline stays identical to
+   the original; `--skip-unresolved` leaves them out.
+8. **Blank lines** in the gene tree file are skipped. The script turns a
+   blank line into the line `(()); 1`, which wQFM cannot read.
+9. **Parallelism.** Gene trees are counted in parallel (rayon) and the
+   counts are summed; the output is sorted, so it does not depend on the
+   number of threads.

@@ -17,6 +17,7 @@ mod bipartition;
 mod divide;
 mod edge_tree;
 mod fm;
+mod gene_trees;
 mod graph;
 mod io;
 mod join;
@@ -31,7 +32,8 @@ mod random;
 mod topology;
 
 pub use amalgamate::{amalgamate, Amalgamation};
-pub use io::{parse_wqfm_input, to_wqfm_input};
+pub use gene_trees::{count_quartets, QuartetCounts};
+pub use io::{counts_to_wqfm_input, parse_wqfm_input, to_wqfm_input};
 pub use options::Options;
 pub use oracle::{all_binary_trees, exhaustive_best};
 pub use quartet::{quartets_of, Quartet};

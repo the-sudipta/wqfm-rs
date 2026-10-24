@@ -3,7 +3,10 @@
 use std::fs;
 use std::path::Path;
 
-use wqfm::{amalgamate, parse_wqfm_input, Options, Quartet, Topology};
+use wqfm::newick::Tree;
+use wqfm::{
+    amalgamate, count_quartets, counts_to_wqfm_input, parse_wqfm_input, Options, Quartet, Topology,
+};
 
 use crate::args::Command;
 
@@ -30,6 +33,41 @@ pub fn run(command: Command) -> Result<(), String> {
                 result.score,
                 result.total_weight,
                 ratio(result.score, result.total_weight)
+            );
+            Ok(())
+        }
+        Command::Gt2wq {
+            input,
+            output,
+            skip_unresolved,
+            threads,
+        } => {
+            let text =
+                fs::read_to_string(&input).map_err(|e| format!("{}: {e}", input.display()))?;
+            let trees = text
+                .lines()
+                .map(str::trim)
+                .enumerate()
+                .filter(|(_, l)| !l.is_empty())
+                .map(|(i, l)| Tree::parse(l).map_err(|e| format!("line {}: {e}", i + 1)))
+                .collect::<Result<Vec<_>, _>>()?;
+            let pool = rayon::ThreadPoolBuilder::new()
+                .num_threads(threads)
+                .build()
+                .map_err(|e| e.to_string())?;
+            let counts = pool.install(|| count_quartets(&trees))?;
+            let out = counts_to_wqfm_input(&counts, !skip_unresolved);
+            match output {
+                Some(path) => {
+                    fs::write(&path, out).map_err(|e| format!("{}: {e}", path.display()))?
+                }
+                None => print!("{out}"),
+            }
+            eprintln!(
+                "{} gene trees, {} taxa, {} quartet sets",
+                trees.len(),
+                counts.names.len(),
+                counts.counts.len()
             );
             Ok(())
         }

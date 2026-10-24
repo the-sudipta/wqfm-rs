@@ -3,7 +3,53 @@
 use std::collections::HashMap;
 use std::fmt::Write as _;
 
+use crate::gene_trees::QuartetCounts;
 use crate::quartet::Quartet;
+
+/// Quartet counts in wQFM's input format exactly as `generate_wqrts.py`
+/// writes them: each pair in text order, the pair with the smaller first
+/// name first, lines sorted as text, weight = count. With
+/// `keep_unresolved`, unresolved 4-sets are written as the script does,
+/// `((a,b,c,d)); n` with the names in text order (wQFM then reads them as
+/// ab|cd).
+pub fn counts_to_wqfm_input(c: &QuartetCounts, keep_unresolved: bool) -> String {
+    let n = |t: u32| c.names[t as usize].as_str();
+    let mut lines: Vec<(String, u32)> = Vec::new();
+    for (&[a, b, x, y], counts) in &c.counts {
+        let tops = [((a, b), (x, y)), ((a, x), (b, y)), ((a, y), (b, x))];
+        if keep_unresolved && counts[3] > 0 {
+            let mut four = [n(a), n(b), n(x), n(y)];
+            four.sort_unstable();
+            let key = format!("(({},{},{},{}));", four[0], four[1], four[2], four[3]);
+            lines.push((key, counts[3]));
+        }
+        for (((p, q), (r, s)), &count) in tops.into_iter().zip(counts) {
+            if count == 0 {
+                continue;
+            }
+            let pair = |u: u32, v: u32| {
+                let (u, v) = (n(u), n(v));
+                if u <= v {
+                    (u, v)
+                } else {
+                    (v, u)
+                }
+            };
+            let (mut first, mut second) = (pair(p, q), pair(r, s));
+            if second.0 < first.0 {
+                std::mem::swap(&mut first, &mut second);
+            }
+            let key = format!("(({},{}),({},{}));", first.0, first.1, second.0, second.1);
+            lines.push((key, count));
+        }
+    }
+    lines.sort_unstable();
+    let mut out = String::new();
+    for (key, count) in lines {
+        let _ = writeln!(out, "{key} {count}");
+    }
+    out
+}
 
 /// Weighted quartets in wQFM's input format.
 pub fn to_wqfm_input(names: &[String], quartets: &[Quartet]) -> String {
@@ -81,6 +127,24 @@ mod tests {
         let nm: Vec<String> = (0..4).map(|i| format!("t{i}")).collect();
         let text = to_wqfm_input(&nm, &[Quartet::new(0, 1, 2, 3, 34.0)]);
         assert_eq!(text, "((t0,t1),(t2,t3)); 34\n");
+    }
+
+    #[test]
+    fn counts_are_written_in_script_order() {
+        let trees: Vec<crate::newick::Tree> =
+            ["((b,10),(2,a));", "((b,10),(2,a));", "((b,2),(10,a));"]
+                .iter()
+                .map(|t| crate::newick::Tree::parse(t).unwrap())
+                .collect();
+        let c = crate::gene_trees::count_quartets(&trees).unwrap();
+        assert_eq!(
+            counts_to_wqfm_input(&c, true),
+            "((10,a),(2,b)); 1\n((10,b),(2,a)); 2\n"
+        );
+        let star = [crate::newick::Tree::parse("(b,10,2,a);").unwrap()];
+        let c = crate::gene_trees::count_quartets(&star).unwrap();
+        assert_eq!(counts_to_wqfm_input(&c, true), "((10,2,a,b)); 1\n");
+        assert_eq!(counts_to_wqfm_input(&c, false), "");
     }
 
     #[test]

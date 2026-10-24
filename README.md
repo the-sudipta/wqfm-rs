@@ -23,11 +23,15 @@ Input is wQFM's format: one weighted quartet per line.
 ```
 
 ```bash
+wqfm-rs gt2wq -i genetrees.nwk -o quartets.txt
 wqfm-rs amalgamate -i quartets.txt -o tree.nwk
 wqfm-rs score -i quartets.txt -t tree.nwk
 ```
 
-`amalgamate` takes `--beta` (default 1), the weight of violated quartets in
+`gt2wq` turns gene trees (one Newick per line) into weighted quartets,
+byte for byte as wQFM's `generate_wqrts.py` does; `--skip-unresolved` leaves
+out 4-sets that a gene tree does not resolve (see `docs/decisions.md`), and
+`-t` sets the number of threads. `amalgamate` takes `--beta` (default 1), the weight of violated quartets in
 the partition score. `score` prints the satisfied weight, the total weight and
 their ratio.
 
