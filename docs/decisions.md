@@ -34,3 +34,23 @@
 9. **Parallelism.** Gene trees are counted in parallel (rayon) and the
    counts are summed; the output is sorted, so it does not depend on the
    number of threads.
+10. **Java `HashMap` order.** wQFM v1.4 takes two orders from Java hash
+    maps: the taxa of a new level (keys of the bipartition map) and the
+    merged dummy quartets (keys of a map of quartets). The quartet order
+    sets the order of floating-point sums, so gains that are equal in exact
+    arithmetic differ in the last bits, and the near-ties go another way.
+    `java_order.rs` reproduces both orders (buckets `spread(hash) & (n-1)`,
+    insertion order inside a bucket, table sizes of `new HashMap<>()` and
+    `new HashMap<>(map)`, `Quartet.hashCode` of wQFM). Found on the Fish
+    mtDNA input without the strand filter: same score as the jar, RF 4,
+    before; identical move by move (taxon and gain bits, 529 moves) after.
+    Buckets that Java turns into trees (9 or more entries in a table of at
+    least 64) are not modelled; a debug assertion reports them, and none
+    occurred on the test inputs.
+11. **Dummy ids** are `n + depth` (depth 1 at the top level), as
+    `TaxaUtils.getDummyTaxonName`; sibling levels share an id.
+12. **Java version.** OpenJDK 19 changed the table size of
+    `new HashMap<>(map)` (`ceil(k / 0.75)` instead of `k / 0.75 + 1`), so the
+    jar's tree can depend on the Java version on inputs with near-ties.
+    wqfm-rs follows OpenJDK 19 and later; the reference runs used OpenJDK
+    21.0.12.1.

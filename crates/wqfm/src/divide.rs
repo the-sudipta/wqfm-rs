@@ -2,6 +2,7 @@
 
 use std::collections::HashMap;
 
+use crate::java_order::{bipartition_key_order, quartet_key_order};
 use crate::level::Level;
 use crate::partition::{sides_of, status, Status, LEFT, RIGHT};
 use crate::quartet::Quartet;
@@ -9,7 +10,8 @@ use crate::quartet::Quartet;
 /// Each side gets the dummy for the other side. Blank quartets go to their
 /// side; deferred quartets go to the side of their three taxa with the
 /// fourth replaced by the dummy, and equal new quartets are merged with the
-/// mean weight. Satisfied and violated quartets are dropped.
+/// mean weight. Satisfied and violated quartets are dropped. Taxa and new
+/// quartets follow the iteration order of wQFM's Java maps (`java_order`).
 pub(crate) fn divide(level: Level, side: &[i8], dummy: u32) -> (Level, Level) {
     let mut left = Level {
         taxa: Vec::new(),
@@ -19,7 +21,7 @@ pub(crate) fn divide(level: Level, side: &[i8], dummy: u32) -> (Level, Level) {
         taxa: Vec::new(),
         quartets: Vec::new(),
     };
-    for &t in &level.taxa {
+    for t in bipartition_key_order(&level.taxa) {
         if side[t as usize] == LEFT {
             left.taxa.push(t);
         } else {
@@ -66,7 +68,11 @@ pub(crate) fn divide(level: Level, side: &[i8], dummy: u32) -> (Level, Level) {
             _ => {}
         }
     }
-    for (to_left, q) in dummy_quartets {
+    let keys: Vec<Quartet> = dummy_quartets.iter().map(|d| d.1).collect();
+    let (order, tree) = quartet_key_order(&keys);
+    debug_assert!(!tree, "a Java HashMap bucket became a tree");
+    for i in order {
+        let (to_left, q) = dummy_quartets[i];
         if to_left {
             left.quartets.push(q);
         } else {

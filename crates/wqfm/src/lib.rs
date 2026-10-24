@@ -20,6 +20,7 @@ mod fm;
 mod gene_trees;
 mod graph;
 mod io;
+mod java_order;
 mod join;
 mod level;
 pub mod newick;

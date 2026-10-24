@@ -40,8 +40,7 @@ pub fn amalgamate(names: &[String], quartets: &[Quartet], options: &Options) -> 
             .copied()
             .collect(),
     };
-    let mut next_dummy = n;
-    let mut tree = solve(top, options, &mut next_dummy);
+    let mut tree = solve(top, options, n, 0);
     if !missing.is_empty() {
         let mut children = match tree {
             Node::Inner(c) => c,
@@ -61,18 +60,20 @@ pub fn amalgamate(names: &[String], quartets: &[Quartet], options: &Options) -> 
 }
 
 /// One level: a star for at most three taxa or no quartets; otherwise
-/// bipartition, refine, divide, solve both sides and join them.
-fn solve(level: Level, options: &Options, next_dummy: &mut u32) -> Node {
+/// bipartition, refine, divide, solve both sides and join them. As in
+/// wQFM, the dummy taxon of a level at depth d (from 1) is `n + d`, so
+/// sibling levels share it.
+fn solve(level: Level, options: &Options, n: u32, depth: u32) -> Node {
     if level.taxa.len() <= 3 || level.quartets.is_empty() {
         return Node::Inner(level.taxa.iter().map(|&t| Node::Leaf(t)).collect());
     }
     let max_id = *level.taxa.iter().max().expect("taxa") as usize;
     let mut side = initial_bipartition(&level, max_id);
     fm(&level, &mut side, options);
-    let dummy = *next_dummy;
-    *next_dummy += 1;
+    let depth = depth + 1;
+    let dummy = n + depth;
     let (left, right) = divide(level, &side, dummy);
-    let left_tree = solve(left, options, next_dummy);
-    let right_tree = solve(right, options, next_dummy);
+    let left_tree = solve(left, options, n, depth);
+    let right_tree = solve(right, options, n, depth);
     merge(left_tree, right_tree, dummy)
 }
