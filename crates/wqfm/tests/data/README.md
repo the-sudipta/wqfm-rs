@@ -16,3 +16,12 @@ pandas 2.1.4, Ubuntu 24.04) on it. `wqfm-rs gt2wq` must give the same bytes.
   `real_01` of the Phase 3 comparison). `fish_no_strand.jar.tre` is the tree
   of `wQFM-v1.4.jar` on it (OpenJDK 21.0.12.1). Before Java's `HashMap` order
   was modelled, wqfm-rs gave a tree with the same score but RF 4 here.
+
+# Unusual inputs (`edge/`)
+
+`eNN_*.wqrts` are small hand-written inputs; `eNN_*.jar.tre` is the tree of
+`wQFM-v1.4.jar` (OpenJDK 21.0.12.1) on each. wqfm-rs gives the same
+topology and score on all 12. `e13_overflow_weight` has a weight of `1e309`
+(infinite as a double); the jar runs and gives a meaningless tree, wqfm-rs
+refuses the file. `e10_crlf.wqrts` keeps its CRLF line ends (marked `-text`
+in `.gitattributes`).

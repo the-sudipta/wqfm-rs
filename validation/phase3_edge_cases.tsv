@@ -1,0 +1,14 @@
+name	jar_tree	result
+e01_duplicate_lines	((a,b),(e,(c,d)));	identical (RF 0, same score)
+e02_zero_weight	((a,b),(e,(c,d)));	identical (RF 0, same score)
+e03_negative_weight	((e,(a,b)),(c,d));	identical (RF 0, same score)
+e04_all_three_equal	((c,(a,b)),(d,e));	identical (RF 0, same score)
+e05_four_taxa	((a,b),(c,d));	identical (RF 0, same score)
+e06_five_taxa	((a,b),(e,(c,d)));	identical (RF 0, same score)
+e07_name_characters	((Homo_sapiens,Pan.troglodytes),(Hylobates_lar,(Gorilla-gorilla,Pongo1)));	identical (RF 0, same score)
+e08_repeated_taxon	((a,b),(e,(c,d)));	identical (RF 0, same score)
+e09_number_formats	((b,(a,c)),(d,e));	identical (RF 0, same score)
+e10_crlf	((a,b),(e,(c,d)));	identical (RF 0, same score)
+e11_spacing	((a,b),(c,d,e));	identical (RF 0, same score)
+e12_same_quartet_reordered	((a,b),(e,(c,d)));	identical (RF 0, same score)
+e13_overflow_weight	((a,b),(c,d,e));	wqfm-rs refuses (weight 1e309 is infinite); the jar runs and gives a meaningless tree

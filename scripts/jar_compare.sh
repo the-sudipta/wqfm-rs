@@ -6,7 +6,8 @@
 # Writes <inputs folder>/comparison.tsv (one row per input) and prints a
 # summary. Pass = identical topology (RF 0) and identical score.
 # Environment: JAVA = java command inside WSL (default java); TAG = suffix
-# of the jar trees and the table, to keep runs with two Java versions apart.
+# of the jar trees and the table, to keep runs with two Java versions apart;
+# BETA = partition-score beta passed to both programs (default 1).
 
 set -u
 dir=$(cd "$1" && pwd)
@@ -14,6 +15,7 @@ wqfm_dir=$(cd "$2" && pwd)
 heap=${3:-512m}
 java=${JAVA:-java}
 tag=${TAG:-}
+beta=${BETA:-1}
 root=$(cd "$(dirname "$0")/.." && pwd)
 rs="$root/target/release/wqfm-rs"
 [ -x "$rs" ] || rs="$rs.exe"
@@ -28,9 +30,9 @@ fail=0
 for f in "$dir"/*.wqrts; do
     name=$(basename "$f" .wqrts)
     t0=$(date +%s.%N)
-    "$rs" amalgamate -i "$f" -o "$dir/$name.rs.tre" 2> /dev/null
+    "$rs" amalgamate --beta "$beta" -i "$f" -o "$dir/$name.rs$tag.tre" 2> /dev/null
     t1=$(date +%s.%N)
-    wsl.exe -d Ubuntu-24.04 -- bash -c "cd '$wqfm_wsl' && timeout 600 $java -Xmx$heap -jar wQFM-v1.4.jar -i '$dir_wsl/$name.wqrts' -o '$dir_wsl/$name.jar$tag.tre'" > "$dir/$name.jar$tag.log" 2>&1
+    wsl.exe -d Ubuntu-24.04 -- bash -c "cd '$wqfm_wsl' && timeout 600 $java -Xmx$heap -jar wQFM-v1.4.jar -beta $beta -i '$dir_wsl/$name.wqrts' -o '$dir_wsl/$name.jar$tag.tre'" > "$dir/$name.jar$tag.log" 2>&1
     t2=$(date +%s.%N)
     rs_s=$(awk -v a="$t0" -v b="$t1" 'BEGIN { printf "%.3f", b - a }')
     jar_s=$(awk -v a="$t1" -v b="$t2" 'BEGIN { printf "%.3f", b - a }')
@@ -39,9 +41,9 @@ for f in "$dir"/*.wqrts; do
         fail=$((fail + 1))
         continue
     fi
-    read -r rs_score total _ < <("$rs" score -i "$f" -t "$dir/$name.rs.tre")
+    read -r rs_score total _ < <("$rs" score -i "$f" -t "$dir/$name.rs$tag.tre")
     read -r jar_score _ _ < <("$rs" score -i "$f" -t "$dir/$name.jar$tag.tre")
-    read -r rf nrf < <("$rs" compare "$dir/$name.rs.tre" "$dir/$name.jar$tag.tre")
+    read -r rf nrf < <("$rs" compare "$dir/$name.rs$tag.tre" "$dir/$name.jar$tag.tre")
     if [ "$rf" = 0 ] && [ "$rs_score" = "$jar_score" ]; then
         result=pass
         pass=$((pass + 1))

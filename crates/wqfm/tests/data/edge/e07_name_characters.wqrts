@@ -1,0 +1,4 @@
+((Homo_sapiens,Pan.troglodytes),(Gorilla-gorilla,Pongo1)); 2
+((Homo_sapiens,Gorilla-gorilla),(Pan.troglodytes,Hylobates_lar)); 1
+((Pongo1,Hylobates_lar),(Homo_sapiens,Pan.troglodytes)); 3
+((Gorilla-gorilla,Pongo1),(Hylobates_lar,Homo_sapiens)); 1.5

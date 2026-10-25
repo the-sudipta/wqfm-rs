@@ -44,3 +44,31 @@ wqfm-rs, with an error naming the line.
 of `gt2wq` on the test gene trees (`scripts/determinism.sh`). CI
 (`.github/workflows/ci.yml`) rebuilds them on Linux, Windows and macOS and
 requires the same list.
+
+## Phase 3: β other than 1 (2026-10-25)
+
+`phase3_beta.tsv`: the jar (`-beta B`) and wqfm-rs (`--beta B`) at
+β = 0.25, 0.5, 1.5 and 2 on 10 inputs (noisy, ties and sparse kinds, 10 to
+40 taxa, and the Fish mtDNA quartets without the strand filter): 40 of 40
+identical in topology and score.
+
+## Phase 3: unusual inputs (2026-10-25)
+
+`phase3_edge_cases.tsv` and `crates/wqfm/tests/data/edge/`: 13 hand-written
+inputs (duplicate lines, zero and negative weights, three equal topologies
+of a 4-set, 4 and 5 taxa, unusual names, number formats, CRLF, spacing, a
+repeated taxon, one quartet written in several orders, an infinite
+weight). 12 identical to the jar; the infinite weight is refused by
+wqfm-rs, while the jar returns a meaningless tree. The test `tests/edge.rs`
+repeats the 12 comparisons on every build.
+
+## Phase 3: the model of Java's HashMap (2026-10-25)
+
+`examples/java_order_check.rs` writes 3,000 seeded insertion sequences
+(crowded buckets, real wQFM quartet hash codes, small integers; up to 401
+keys) with the model's iteration orders for the map and for
+`new HashMap<>(map)`; `scripts/JavaOrderCheck.java` prints the orders of the
+real `java.util.HashMap` (OpenJDK 21.0.12.1). All 3,000 identical, 820 of
+them with buckets turned into trees. CI repeats the check on Linux on every
+push. With the full model, all 214 jar comparisons above still pass and
+none is reported as uncertain.
