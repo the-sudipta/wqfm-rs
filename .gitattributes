@@ -7,3 +7,4 @@ Dockerfile text eol=lf
 *.yaml text eol=lf
 *.cff text eol=lf
 crates/wqfm/tests/data/edge/e10_crlf.wqrts -text
+*.py text eol=lf

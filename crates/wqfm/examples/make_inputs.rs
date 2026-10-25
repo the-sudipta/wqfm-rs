@@ -1,7 +1,8 @@
 //! Writes seeded weighted-quartet inputs for the comparison with the jar.
 //!
-//! Usage: cargo run --release --example make_inputs -- <folder> <sizes> <seeds>
-//! e.g. `... -- inputs 6,8,10 1,2,3`. Three kinds per size and seed:
+//! Usage: cargo run --release --example make_inputs -- <folder> <sizes> <seeds> [kinds]
+//! e.g. `... -- inputs 6,8,10 1,2,3` or `... -- inputs 25,50 1,2 noisy,sparse`.
+//! Kinds (all three by default):
 //! - `noisy`: every 4-set, the tree's topology weighted 0.5 to 1, the other
 //!   two 0 to 0.3;
 //! - `ties`: every 4-set, whole weights (true 2 or 3, others 0 to 2), so
@@ -16,16 +17,20 @@ use wqfm::{random_binary_tree, to_wqfm_input, Quartet, SplitMix64, Topology};
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     assert!(
-        args.len() == 4,
-        "usage: make_inputs <folder> <sizes> <seeds>"
+        args.len() == 4 || args.len() == 5,
+        "usage: make_inputs <folder> <sizes> <seeds> [kinds]"
     );
+    let kinds: Vec<String> = match args.get(4) {
+        Some(k) => k.split(',').map(String::from).collect(),
+        None => ["noisy", "ties", "sparse"].map(String::from).to_vec(),
+    };
     let dir = std::path::Path::new(&args[1]);
     std::fs::create_dir_all(dir).unwrap();
     let list = |s: &str| -> Vec<u64> { s.split(',').map(|x| x.parse().unwrap()).collect() };
     let mut index = String::from("name\tkind\ttaxa\tseed\tquartets\ttrue_tree\n");
     for &m in &list(&args[2]) {
         for &seed in &list(&args[3]) {
-            for kind in ["noisy", "ties", "sparse"] {
+            for kind in kinds.iter().map(String::as_str) {
                 let mut rng = SplitMix64::new(seed * 1_000_003 + m * 101 + kind.len() as u64);
                 let names: Vec<String> = (0..m).map(|i| format!("t{i}")).collect();
                 let truth = random_binary_tree(&names, &mut rng);
