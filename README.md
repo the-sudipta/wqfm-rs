@@ -57,6 +57,7 @@ println!("{}", tree.newick);
 |---|---|
 | `crates/wqfm` | the library, one feature per file |
 | `crates/wqfm-cli` | the `wqfm-rs` command |
+| `docs/USAGE.md` | manual: worked example, options, input rules, messages |
 | `docs/decisions.md` | design decisions |
 | `validation/` | comparison records with the wQFM jar |
 | `scripts/jar_compare.sh` | runs the jar comparison |

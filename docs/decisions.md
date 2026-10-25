@@ -44,14 +44,26 @@
     merged dummy quartets (keys of a map of quartets). The quartet order
     sets the order of floating-point sums, so gains that are equal in exact
     arithmetic differ in the last bits, and the near-ties go another way.
-    `java_order.rs` reproduces both orders (buckets `spread(hash) & (n-1)`,
-    insertion order inside a bucket, table sizes of `new HashMap<>()` and
-    `new HashMap<>(map)`, `Quartet.hashCode` of wQFM). Found on the Fish
-    mtDNA input without the strand filter: same score as the jar, RF 4,
-    before; identical move by move (taxon and gain bits, 529 moves) after.
-    Buckets that Java turns into trees (9 or more entries in a table of at
-    least 64) are not modelled; a debug assertion reports them, and none
-    occurred on the test inputs.
+    Found on the Fish mtDNA input without the strand filter: same score as
+    the jar, RF 4, before; identical move by move (taxon and gain bits, 529
+    moves) after. `java_order.rs` replays the insertions into a `HashMap`
+    as the class documents it (OpenJDK 19+): table sizes of `new HashMap<>()`
+    and `new HashMap<>(map)`, buckets as lists, a bucket of more than 8
+    entries turned into a red-black tree ordered by hash (or the table
+    doubled below 64), the tree root moved to the front of its bucket,
+    order-keeping splits on resize and trees of 6 or fewer turned back into
+    lists. It is written from that description, not copied from OpenJDK.
+    wQFM's weak `Quartet.hashCode` makes tree buckets common (5 of 216 test
+    inputs, some with 12 taxa). The model was checked against the real
+    `java.util.HashMap` of OpenJDK 21 on 3,000 generated insertion
+    sequences (820 with tree buckets), for the map and for a copy of it:
+    all identical (`examples/java_order_check.rs`,
+    `scripts/JavaOrderCheck.java`; CI repeats it on every push). One case
+    cannot be reproduced: two different quartets with the same hash inside
+    a tree, which Java orders by `System.identityHashCode`, so the jar's own
+    result can then change between runs. wqfm-rs reports it
+    (`Amalgamation::java_order_exact`, a warning from the command); it did
+    not occur on any test input.
 11. **Dummy ids** are `n + depth` (depth 1 at the top level), as
     `TaxaUtils.getDummyTaxonName`; sibling levels share an id.
 12. **Java version.** OpenJDK 19 changed the table size of
@@ -62,3 +74,14 @@
 13. **Empty lines in quartet files.** The jar stops reading at the first
     empty line. `parse_wqfm_input` does the same but returns an error if
     quartets follow, since the jar would silently ignore them.
+14. **Weights that are not finite** (`1e309`, `NaN`) are refused by the
+    reader. The jar accepts them and returns a meaningless tree (seen on
+    `edge/e13_overflow_weight`); the library still leaves such quartets out
+    of the search if a caller passes them.
+15. **β.** `--beta` is the jar's `-beta` (score `1·ws − β·wv`); checked
+    against the jar at β = 0.25, 0.5, 1.5 and 2 on 10 inputs each. The jar's
+    `-beta dynamic` (a binning heuristic) is not implemented.
+16. **Memory.** Quartet files are read line by line, and the top level of
+    the recursion borrows the caller's quartets instead of copying them;
+    this removes the file text and one copy of the quartet list from the
+    peak. Outputs are unchanged (CI hashes and all jar comparisons).
