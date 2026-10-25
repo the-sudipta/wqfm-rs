@@ -2,6 +2,7 @@
 
 use std::collections::HashMap;
 use std::fmt::Write as _;
+use std::io::BufRead;
 
 use crate::gene_trees::QuartetCounts;
 use crate::quartet::Quartet;
@@ -73,67 +74,96 @@ pub fn to_wqfm_input(names: &[String], quartets: &[Quartet]) -> String {
 /// (new names are appended). As in wQFM v1.4, a line must have exactly
 /// three `(` and three `)` (so `((a,b,c,d)); w` is refused) and reading
 /// ends at the first empty line; text after it is an error here, because
-/// wQFM would silently ignore it.
+/// wQFM would silently ignore it. Weights must be finite (the jar accepts
+/// `1e309` or `NaN` and then gives meaningless trees).
 pub fn parse_wqfm_input(text: &str, names: &mut Vec<String>) -> Result<Vec<Quartet>, String> {
+    read_wqfm_input(text.as_bytes(), names)
+}
+
+/// As [`parse_wqfm_input`], reading line by line from `reader`, so a large
+/// file is never held in memory as a whole.
+pub fn read_wqfm_input<R: BufRead>(
+    reader: R,
+    names: &mut Vec<String>,
+) -> Result<Vec<Quartet>, String> {
     let mut index: HashMap<String, u32> = names
         .iter()
         .enumerate()
         .map(|(i, n)| (n.clone(), i as u32))
         .collect();
     let mut out = Vec::new();
-    let mut lines = text.lines().enumerate();
+    let mut lines = reader.lines().enumerate();
     for (n, line) in lines.by_ref() {
+        let line = line.map_err(|e| format!("line {}: {e}", n + 1))?;
         let line = line.trim();
         if line.is_empty() {
             break;
         }
-        let open = line.matches('(').count();
-        let close = line.matches(')').count();
-        if open != 3 || close != 3 {
+        out.push(parse_line(line, n + 1, names, &mut index)?);
+    }
+    for (n, line) in lines {
+        let line = line.map_err(|e| format!("line {}: {e}", n + 1))?;
+        if !line.trim().is_empty() {
             return Err(format!(
-                "line {}: not a quartet ((a,b),(c,d)); w (an unresolved 4-set?)",
+                "line {}: quartets after an empty line (wQFM would ignore them)",
                 n + 1
             ));
         }
-        let cleaned: String = line
-            .chars()
-            .map(|c| {
-                if c == '(' || c == ')' || c == ';' {
-                    ' '
-                } else {
-                    c
-                }
-            })
-            .collect();
-        let parts: Vec<&str> = cleaned
-            .split(|c: char| c == ',' || c.is_whitespace())
-            .filter(|s| !s.is_empty())
-            .collect();
-        if parts.len() != 5 {
-            return Err(format!("line {}: expected ((a,b),(c,d)); w", n + 1));
-        }
-        let mut id = |s: &str| -> u32 {
-            if let Some(&i) = index.get(s) {
-                return i;
-            }
-            let i = names.len() as u32;
-            names.push(s.to_string());
-            index.insert(s.to_string(), i);
-            i
-        };
-        let t: Vec<u32> = parts[..4].iter().map(|s| id(s)).collect();
-        let w: f64 = parts[4]
-            .parse()
-            .map_err(|_| format!("line {}: weight {} is not a number", n + 1, parts[4]))?;
-        out.push(Quartet::new(t[0], t[1], t[2], t[3], w));
-    }
-    if let Some((n, _)) = lines.find(|(_, l)| !l.trim().is_empty()) {
-        return Err(format!(
-            "line {}: quartets after an empty line (wQFM would ignore them)",
-            n + 1
-        ));
     }
     Ok(out)
+}
+
+/// One non-empty line `((a,b),(c,d)); w` (line number `n`, from 1).
+fn parse_line(
+    line: &str,
+    n: usize,
+    names: &mut Vec<String>,
+    index: &mut HashMap<String, u32>,
+) -> Result<Quartet, String> {
+    let open = line.matches('(').count();
+    let close = line.matches(')').count();
+    if open != 3 || close != 3 {
+        return Err(format!(
+            "line {n}: not a quartet ((a,b),(c,d)); w (an unresolved 4-set?)"
+        ));
+    }
+    let cleaned: String = line
+        .chars()
+        .map(|c| {
+            if c == '(' || c == ')' || c == ';' {
+                ' '
+            } else {
+                c
+            }
+        })
+        .collect();
+    let parts: Vec<&str> = cleaned
+        .split(|c: char| c == ',' || c.is_whitespace())
+        .filter(|s| !s.is_empty())
+        .collect();
+    if parts.len() != 5 {
+        return Err(format!("line {n}: expected ((a,b),(c,d)); w"));
+    }
+    let mut id = |s: &str| -> u32 {
+        if let Some(&i) = index.get(s) {
+            return i;
+        }
+        let i = names.len() as u32;
+        names.push(s.to_string());
+        index.insert(s.to_string(), i);
+        i
+    };
+    let t: Vec<u32> = parts[..4].iter().map(|s| id(s)).collect();
+    let w: f64 = parts[4]
+        .parse()
+        .map_err(|_| format!("line {n}: weight {} is not a number", parts[4]))?;
+    if !w.is_finite() {
+        return Err(format!(
+            "line {n}: weight {} is not a finite number",
+            parts[4]
+        ));
+    }
+    Ok(Quartet::new(t[0], t[1], t[2], t[3], w))
 }
 
 #[cfg(test)]
@@ -170,6 +200,8 @@ mod tests {
         assert!(parse_wqfm_input("((a,b),(c)); 1", &mut Vec::new()).is_err());
         assert!(parse_wqfm_input("((a,b),(c,d)); x", &mut Vec::new()).is_err());
         assert!(parse_wqfm_input("((a,b,c,d)); 1", &mut Vec::new()).is_err());
+        assert!(parse_wqfm_input("((a,b),(c,d)); 1e309", &mut Vec::new()).is_err());
+        assert!(parse_wqfm_input("((a,b),(c,d)); NaN", &mut Vec::new()).is_err());
         assert!(parse_wqfm_input(
             "((a,b),(c,d)); 1
 

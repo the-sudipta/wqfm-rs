@@ -5,7 +5,7 @@ use std::path::Path;
 
 use wqfm::newick::{nrf, Tree};
 use wqfm::{
-    amalgamate, count_quartets, counts_to_wqfm_input, parse_wqfm_input, Options, Quartet, Topology,
+    amalgamate, count_quartets, counts_to_wqfm_input, read_wqfm_input, Options, Quartet, Topology,
 };
 
 use crate::args::Command;
@@ -23,6 +23,12 @@ pub fn run(command: Command) -> Result<(), String> {
                 ..Options::default()
             };
             let result = amalgamate(&names, &quartets, &options);
+            if !result.java_order_exact {
+                eprintln!(
+                    "wqfm-rs: warning: the wQFM jar's own hash-map order is not certain on \
+                     this input; near-ties may go differently from the jar"
+                );
+            }
             match output {
                 Some(path) => fs::write(&path, format!("{}\n", result.newick))
                     .map_err(|e| format!("{}: {e}", path.display()))?,
@@ -99,9 +105,10 @@ pub fn run(command: Command) -> Result<(), String> {
 }
 
 fn read_quartets(path: &Path) -> Result<(Vec<String>, Vec<Quartet>), String> {
-    let text = fs::read_to_string(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    let file = fs::File::open(path).map_err(|e| format!("{}: {e}", path.display()))?;
     let mut names = Vec::new();
-    let quartets = parse_wqfm_input(&text, &mut names)?;
+    let quartets = read_wqfm_input(std::io::BufReader::new(file), &mut names)
+        .map_err(|e| format!("{}: {e}", path.display()))?;
     Ok((names, quartets))
 }
 

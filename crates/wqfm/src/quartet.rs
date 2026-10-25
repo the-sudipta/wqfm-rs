@@ -4,8 +4,11 @@
 /// `r[0] < r[1]` and `l[0] < r[0]`.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Quartet {
+    /// The sister pair with the smallest taxon id.
     pub l: [u32; 2],
+    /// The other sister pair.
     pub r: [u32; 2],
+    /// The weight (support) of the quartet.
     pub weight: f64,
 }
 

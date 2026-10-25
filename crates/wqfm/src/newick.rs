@@ -11,12 +11,14 @@
 use std::collections::BTreeMap;
 use std::fmt;
 
+/// A node of a parsed tree.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Node {
     /// Leaf name or internal label, if any.
     pub label: Option<String>,
     /// Branch length to the parent, if given.
     pub length: Option<f64>,
+    /// Indices of the children in `Tree::nodes` (empty for a leaf).
     pub children: Vec<usize>,
 }
 
@@ -24,14 +26,18 @@ pub struct Node {
 /// multifurcation, as in unrooted trees written with a basal trichotomy).
 #[derive(Debug, Clone, PartialEq)]
 pub struct Tree {
+    /// All nodes; children come before their parent.
     pub nodes: Vec<Node>,
+    /// Index of the root in `nodes`.
     pub root: usize,
 }
 
+/// A syntax error in a Newick tree.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NewickError {
     /// Byte position in the input.
     pub position: usize,
+    /// What is wrong.
     pub message: String,
 }
 
@@ -213,6 +219,7 @@ impl Tree {
         })
     }
 
+    /// True if `node` has no children.
     pub fn is_leaf(&self, node: usize) -> bool {
         self.nodes[node].children.is_empty()
     }

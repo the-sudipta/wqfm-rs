@@ -17,6 +17,11 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        if: runner.os == 'Linux'
+        with:
+          distribution: temurin
+          java-version: '21'
       - name: Toolchain (from rust-toolchain.toml)
         run: rustup show active-toolchain || rustup toolchain install
       - name: Format
@@ -30,3 +35,12 @@ jobs:
           cargo build --release --bin wqfm-rs --example make_inputs
           bash scripts/determinism.sh > determinism.txt
           diff validation/determinism.sha256 determinism.txt
+      - name: Java HashMap model against Java 21 (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          cargo build --release --example java_order_check
+          mkdir -p target/javaorder
+          ./target/release/examples/java_order_check target/javaorder/cases.txt target/javaorder/expected.txt 3000
+          javac -d target/javaorder scripts/JavaOrderCheck.java
+          java -cp target/javaorder JavaOrderCheck target/javaorder/cases.txt > target/javaorder/java.txt
+          diff target/javaorder/expected.txt target/javaorder/java.txt

@@ -12,7 +12,9 @@ use crate::topology::Topology;
 /// Quartet counts over taxon ids: sorted 4-set a < b < c < d -> counts of
 /// ab|cd, ac|bd, ad|bc and of trees that leave the 4-set unresolved.
 pub struct QuartetCounts {
+    /// Taxon names; ids are positions in this list (order of first appearance).
     pub names: Vec<String>,
+    /// Counts per sorted 4-set of ids.
     pub counts: HashMap<[u32; 4], [u32; 4]>,
 }
 

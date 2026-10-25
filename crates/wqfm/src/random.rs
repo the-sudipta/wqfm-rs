@@ -6,10 +6,12 @@ use crate::edge_tree;
 pub struct SplitMix64(u64);
 
 impl SplitMix64 {
+    /// A generator started from `seed`.
     pub fn new(seed: u64) -> Self {
         Self(seed)
     }
 
+    /// The next 64 random bits.
     pub fn next_u64(&mut self) -> u64 {
         self.0 = self.0.wrapping_add(0x9e37_79b9_7f4a_7c15);
         let mut z = self.0;

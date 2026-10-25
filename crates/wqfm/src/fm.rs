@@ -7,21 +7,26 @@ use crate::partition::{sides_of, status, Status, Tally, LEFT};
 /// The tally of every quartet of the level under `side`.
 fn whole_tally(level: &Level, side: &[i8]) -> Tally {
     let mut t = Tally::default();
-    for q in &level.quartets {
+    for q in level.quartets.iter() {
         t.add(q.weight, status(sides_of(side, q)));
     }
     t
 }
 
-/// True if a side has fewer than two taxa.
-fn is_trivial(level: &Level, side: &[i8]) -> bool {
-    let left = level
+/// The number of taxa of the level on the left side.
+fn count_left(level: &Level, side: &[i8]) -> usize {
+    level
         .taxa
         .iter()
         .filter(|&&t| side[t as usize] == LEFT)
-        .count();
-    let right = level.taxa.len() - left;
-    left < 2 || right < 2
+        .count()
+}
+
+/// True if a side has fewer than two taxa.
+#[cfg(test)]
+fn is_trivial(level: &Level, side: &[i8]) -> bool {
+    let left = count_left(level, side);
+    left < 2 || level.taxa.len() - left < 2
 }
 
 /// True if `a` and `b` split the taxa of the level the same way.
@@ -61,6 +66,8 @@ pub(crate) fn fm(level: &Level, side: &mut Vec<i8>, options: &Options) {
         // One iteration: passes until every taxon is locked.
         let mut locked = vec![false; max_id + 1];
         let mut current = side.clone();
+        // Taxa on the left side of `current`, kept up to date with each move.
+        let mut n_left = count_left(level, &current);
         let mut current_tally = tally;
         // (gain, side after the move, tally after the move)
         let mut passes: Vec<(f64, Vec<i8>, Tally)> = Vec::new();
@@ -71,11 +78,13 @@ pub(crate) fn fm(level: &Level, side: &mut Vec<i8>, options: &Options) {
                 if locked[t as usize] {
                     continue;
                 }
-                let before_side = current[t as usize];
-                current[t as usize] = -before_side;
-                let trivial = is_trivial(level, &current);
-                current[t as usize] = before_side;
-                if trivial {
+                // Moving t must leave at least two taxa on each side.
+                let left_after = if current[t as usize] == LEFT {
+                    n_left - 1
+                } else {
+                    n_left + 1
+                };
+                if left_after < 2 || level.taxa.len() - left_after < 2 {
                     continue;
                 }
                 if relevant[t as usize].is_empty() {
@@ -130,6 +139,11 @@ pub(crate) fn fm(level: &Level, side: &mut Vec<i8>, options: &Options) {
             let (gain, _, t, whole) = best.expect("checked");
             locked[t as usize] = true;
             current[t as usize] = -current[t as usize];
+            if current[t as usize] == LEFT {
+                n_left += 1;
+            } else {
+                n_left -= 1;
+            }
             current_tally = whole;
             passes.push((gain, current.clone(), whole));
             if level.taxa.iter().all(|&x| locked[x as usize]) {
@@ -185,7 +199,7 @@ mod tests {
     fn fm_fixes_a_bad_start() {
         let level = Level {
             taxa: vec![0, 1, 2, 3, 4],
-            quartets: vec![Quartet::new(0, 1, 2, 3, 1.0)],
+            quartets: vec![Quartet::new(0, 1, 2, 3, 1.0)].into(),
         };
         let mut side = vec![LEFT, RIGHT, LEFT, RIGHT, RIGHT];
         fm(&level, &mut side, &Options::default());
@@ -198,7 +212,7 @@ mod tests {
     fn mirror_sides_are_the_same_bipartition() {
         let level = Level {
             taxa: vec![0, 1],
-            quartets: Vec::new(),
+            quartets: Vec::new().into(),
         };
         assert!(same_bipartition(&level, &[LEFT, RIGHT], &[RIGHT, LEFT]));
         assert!(!same_bipartition(&level, &[LEFT, RIGHT], &[LEFT, LEFT]));

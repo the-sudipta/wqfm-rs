@@ -12,35 +12,37 @@ use crate::quartet::Quartet;
 /// fourth replaced by the dummy, and equal new quartets are merged with the
 /// mean weight. Satisfied and violated quartets are dropped. Taxa and new
 /// quartets follow the iteration order of wQFM's Java maps (`java_order`).
-pub(crate) fn divide(level: Level, side: &[i8], dummy: u32) -> (Level, Level) {
-    let mut left = Level {
-        taxa: Vec::new(),
-        quartets: Vec::new(),
-    };
-    let mut right = Level {
-        taxa: Vec::new(),
-        quartets: Vec::new(),
-    };
-    for t in bipartition_key_order(&level.taxa) {
+/// The flag is false if that order is not certain: two quartet hashes tied
+/// inside a Java tree bucket (Java's own order then varies between runs),
+/// or a bipartition map with a tree bucket was copied.
+pub(crate) fn divide(
+    level: Level<'_>,
+    side: &[i8],
+    dummy: u32,
+) -> (Level<'static>, Level<'static>, bool) {
+    let (mut left_taxa, mut right_taxa) = (Vec::new(), Vec::new());
+    let (mut left_quartets, mut right_quartets) = (Vec::new(), Vec::new());
+    let (taxa_order, taxa_replay) = bipartition_key_order(&level.taxa);
+    for t in taxa_order {
         if side[t as usize] == LEFT {
-            left.taxa.push(t);
+            left_taxa.push(t);
         } else {
-            right.taxa.push(t);
+            right_taxa.push(t);
         }
     }
-    left.taxa.push(dummy);
-    right.taxa.push(dummy);
+    left_taxa.push(dummy);
+    right_taxa.push(dummy);
     // New dummy quartets in order of first appearance: key -> (index, count).
     let mut seen: HashMap<[u32; 4], (bool, usize, u32)> = HashMap::new();
     let mut dummy_quartets: Vec<(bool, Quartet)> = Vec::new();
-    for q in &level.quartets {
+    for q in level.quartets.iter() {
         let s = sides_of(side, q);
         match status(s) {
             Status::Blank => {
                 if s[0] == LEFT {
-                    left.quartets.push(*q);
+                    left_quartets.push(*q);
                 } else {
-                    right.quartets.push(*q);
+                    right_quartets.push(*q);
                 }
             }
             Status::Deferred => {
@@ -69,17 +71,25 @@ pub(crate) fn divide(level: Level, side: &[i8], dummy: u32) -> (Level, Level) {
         }
     }
     let keys: Vec<Quartet> = dummy_quartets.iter().map(|d| d.1).collect();
-    let (order, tree) = quartet_key_order(&keys);
-    debug_assert!(!tree, "a Java HashMap bucket became a tree");
+    let (order, quartet_replay) = quartet_key_order(&keys);
+    let exact = !quartet_replay.tie && !taxa_replay.tree && !taxa_replay.tie;
     for i in order {
         let (to_left, q) = dummy_quartets[i];
         if to_left {
-            left.quartets.push(q);
+            left_quartets.push(q);
         } else {
-            right.quartets.push(q);
+            right_quartets.push(q);
         }
     }
-    (left, right)
+    let left = Level {
+        taxa: left_taxa,
+        quartets: left_quartets.into(),
+    };
+    let right = Level {
+        taxa: right_taxa,
+        quartets: right_quartets.into(),
+    };
+    (left, right, exact)
 }
 
 #[cfg(test)]
@@ -95,10 +105,12 @@ mod tests {
                 Quartet::new(0, 1, 2, 3, 2.0),
                 Quartet::new(0, 1, 2, 4, 4.0),
                 Quartet::new(0, 2, 3, 4, 9.0),
-            ],
+            ]
+            .into(),
         };
         let side = [LEFT, LEFT, LEFT, RIGHT, RIGHT];
-        let (l, r) = divide(level, &side, 9);
+        let (l, r, exact) = divide(level, &side, 9);
+        assert!(exact);
         assert_eq!(l.taxa, vec![0, 1, 2, 9]);
         assert_eq!(r.taxa, vec![3, 4, 9]);
         assert_eq!(l.quartets.len(), 1);

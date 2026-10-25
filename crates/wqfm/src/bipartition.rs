@@ -103,7 +103,7 @@ mod tests {
     fn heaviest_quartet_splits_its_pairs() {
         let level = Level {
             taxa: vec![0, 1, 2, 3, 4],
-            quartets: vec![Quartet::new(0, 2, 1, 3, 1.0), Quartet::new(0, 1, 2, 3, 5.0)],
+            quartets: vec![Quartet::new(0, 2, 1, 3, 1.0), Quartet::new(0, 1, 2, 3, 5.0)].into(),
         };
         let side = initial_bipartition(&level, 4);
         assert_eq!(&side[..4], &[LEFT, LEFT, RIGHT, RIGHT]);
