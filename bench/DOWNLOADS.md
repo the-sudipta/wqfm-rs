@@ -3,7 +3,9 @@
 Prepared 2026-10-25 from the repositories' own metadata; approved by the
 owner and downloaded 2026-10-26 (unmetered connection, capped at 4 MB/s,
 while the Q-MAWS benchmark ran its tuning runs, never its speed runs).
-SHA-256 of every file: `bench/datasets.tsv`, `bench/tools.tsv`. Everything goes to `D:\_external\wqfm_bench\` (never C:), is
+SHA-256 of every file: `bench/datasets.tsv`, `bench/tools.tsv`.
+
+Everything goes to `D:\_external\wqfm_bench\` (never C:), is
 only downloaded now and unpacked after the Q-MAWS benchmark, and gets its
 SHA-256 in `bench/datasets.tsv` or `bench/tools.tsv`.
 
