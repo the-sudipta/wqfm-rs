@@ -113,4 +113,38 @@ finished.
 
 ## 7. Amendments
 
-None yet.
+### Amendment 1 (2026-10-26, before any benchmark run)
+
+Reason: writing the run scripts showed that the wQFM pipeline (script and
+jar, and `gt2wq`) lists every 4-set of taxa. On the 500- and 1,000-taxon
+conditions of G3 the script's quartet file would have about 10⁹ to 10¹⁰
+lines, which would fill the disk, endanger other work on the computer and
+take the 6-hour limit on every one of the many replicates. Two rules are
+added; nothing else changes.
+
+1. **File-size limit.** A run may write no file larger than 20 GB
+   (`ulimit -f`); a run that reaches it is recorded as a failure "file
+   limit", like the time and memory limits.
+2. **Stopping at a limit.** Within one dataset family (S1 by kind, G3),
+   inputs are run from small to large. Once a method fails a limit (time,
+   memory, file size) on an input, its runs on all larger inputs of that
+   family are not started and are recorded as "not run: limit reached on a
+   smaller input". Its other replicates of the same size are still run.
+   This only affects the wQFM pipelines and the Java program and is
+   reported per method and size.
+
+Also recorded (no change of plan): the ASTER and TREE-QMC source archives
+are 54 MB and 70 MB; wQFM-TREE v1.1's archive contains `wQFM-TREE-v1.0.1`,
+run with its own `run.sh`, which uses the bundled PAUP* binary for its
+consensus tree; wQFM-rs runs as a static Linux binary cross-compiled from
+the same source (outputs checked byte-identical to the Windows build).
+
+3. **PAUP* for wQFM-TREE.** The PAUP* binary bundled with wQFM-TREE is a
+   32-bit program, and WSL1 (the only Linux available on this computer,
+   whose firmware has virtualization switched off) cannot run 32-bit
+   programs; a test run of the scripts showed wQFM-TREE failing for that
+   reason alone. wQFM-TREE uses PAUP* only to build a greedy consensus of
+   the gene trees. The 64-bit PAUP* 4.0a169 for Ubuntu, from the same
+   author, replaces the bundled binary; its SHA-256 is recorded with the
+   other tools. If it cannot be obtained, wQFM-TREE is reported as not run
+   on this computer, with this reason.
