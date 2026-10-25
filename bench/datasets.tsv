@@ -1,0 +1,12 @@
+file	bytes	sha256	source	downloaded
+mirarab2014/avian-0.5X-estimated-genetrees.tar.bz2	291188171	bb76828d1cdb93611fae942ac125bf8b94c1936a40910906207f3c1457196487	IDEALS https://www.ideals.illinois.edu/items/55766 (Mirarab et al. 2014)	2026-10-26
+mirarab2014/avian-1X-estimated-genetrees.tar.bz2	1124276128	c1748d77856886182403c71e7d70c65a2c95a65c624619463a33980c592767e0	IDEALS https://www.ideals.illinois.edu/items/55764 (Mirarab et al. 2014)	2026-10-26
+mirarab2014/avian-2X-estimated-genetrees.tar.bz2	294518276	e631941ebc0a6d4462a1e8baa6201182b70ba4ae335954b3fc0ea89949942160	IDEALS https://www.ideals.illinois.edu/items/55767 (Mirarab et al. 2014)	2026-10-26
+mirarab2014/avian-model-species.tre	936	7495e4ad8dc2e185b947d825b0d3998730c5963c17b384a8db9bc25a9c949cd5	IDEALS https://www.ideals.illinois.edu/items/55762 (Mirarab et al. 2014)	2026-10-26
+mirarab2014/mammalian-0.5X-estimated-genetrees.tar.bz2	33777193	1793bb612e7e09bf8c296c94a13370d1bf6e9d1b58e3bf6f253c859ffb9305fd	IDEALS https://www.ideals.illinois.edu/items/55769 (Mirarab et al. 2014)	2026-10-26
+mirarab2014/mammalian-1X-estimated-genetrees.tar.bz2	669560709	e904f93fd94426ced2f153b3228e9869207becd78cd52fe547cd06690ce4cf4e	IDEALS https://www.ideals.illinois.edu/items/55768 (Mirarab et al. 2014)	2026-10-26
+mirarab2014/mammalian-2X-estimated-genetrees.tar.bz2	33785613	66fea4f99ae9d6adcdba1a405feebafd19874daa2724c5f6d31cdae2d8cb6580	IDEALS https://www.ideals.illinois.edu/items/55770 (Mirarab et al. 2014)	2026-10-26
+mirarab2014/mammalian-model-species.tre	676	7f4651be1913d58f180027754ecb22635c4b94c05d872f3712e094c2027fec4f	IDEALS https://www.ideals.illinois.edu/items/55763 (Mirarab et al. 2014)	2026-10-26
+astral2/estimated-gene-trees.tar.bz	1957777446	0600b5541ed1b9a996d401bc466930a2b2d95ee9963ba5cfb1b9a33d90e345ff	Dryad doi:10.6076/D10C7C (published SHA-256; not yet downloaded)	
+astral2/true-specis-trees.tar.bz	2274315	f5c8e6c1efefa5bd72ddcb8cbdb84bf1fafb3f39fcccfd29e5ec3d1d34807f7d	Dryad doi:10.6076/D10C7C (published SHA-256; not yet downloaded)	
+astral2/README.md	7218	e1ce7266b8b0705e757eaf41ceef9e01a6e08f3e2fdff80bf4f1edcc8629be27	Dryad doi:10.6076/D10C7C (published SHA-256; not yet downloaded)	
