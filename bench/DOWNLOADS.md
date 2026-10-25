@@ -63,6 +63,6 @@ C:). Dryad's published SHA-256 values are checked.
   test data), not about 1 MB as estimated above.
 - Not yet downloaded: items 1 to 3 (Dryad). Dryad now protects downloads
   with bot detection, which is not circumvented; the owner downloads these
-  three files in a browser into `D:\_external\wqfm_bench\datasetsstral2\`,
+  three files in a browser into `D:\_external\wqfm_bench\datasets\astral2\`,
   and their SHA-256 is then checked against Dryad's published values
   (in `bench/datasets.tsv`).
