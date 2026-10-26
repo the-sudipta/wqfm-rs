@@ -22,6 +22,15 @@ pub struct QuartetCounts {
 /// trees. A 4-set that a gene tree leaves unresolved (a polytomy) is counted
 /// in the fourth slot.
 pub fn count_quartets(trees: &[Tree]) -> Result<QuartetCounts, String> {
+    count_quartets_with_progress(trees, &|| {})
+}
+
+/// As [`count_quartets`], calling `done` once after each gene tree (from
+/// several threads), so a caller can show progress.
+pub fn count_quartets_with_progress(
+    trees: &[Tree],
+    done: &(dyn Fn() + Sync),
+) -> Result<QuartetCounts, String> {
     let mut names: Vec<String> = Vec::new();
     let mut index: HashMap<String, u32> = HashMap::new();
     let mut leaf_ids: Vec<Vec<u32>> = Vec::with_capacity(trees.len());
@@ -46,7 +55,11 @@ pub fn count_quartets(trees: &[Tree]) -> Result<QuartetCounts, String> {
     let counts = trees
         .par_iter()
         .zip(&leaf_ids)
-        .map(|(tree, ids)| one_tree(tree, ids, &index, m))
+        .map(|(tree, ids)| {
+            let counts = one_tree(tree, ids, &index, m);
+            done();
+            counts
+        })
         .reduce(HashMap::new, merge);
     Ok(QuartetCounts { names, counts })
 }

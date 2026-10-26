@@ -2,13 +2,15 @@
 
 mod args;
 mod commands;
+mod ui;
 
 use clap::Parser;
 
 fn main() {
     let cli = args::Cli::parse();
+    ui::set_quiet(cli.quiet);
     if let Err(e) = commands::run(cli.command) {
-        eprintln!("wqfm-rs: {e}");
+        ui::error(&e);
         std::process::exit(1);
     }
 }
