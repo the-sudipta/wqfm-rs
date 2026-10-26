@@ -147,4 +147,12 @@ the same source (outputs checked byte-identical to the Windows build).
    the gene trees. The 64-bit PAUP* 4.0a169 for Ubuntu, from the same
    author, replaces the bundled binary; its SHA-256 is recorded with the
    other tools. If it cannot be obtained, wQFM-TREE is reported as not run
-   on this computer, with this reason.
+   on this computer, with this reason. It needs two libraries that Ubuntu
+   24.04 no longer ships (`libgfortran.so.4`, `libpython2.7`); they come
+   from the official Ubuntu 18.04 packages (SHA-256 checked against the
+   archive index), unpacked in the tool folder and seen by PAUP* only. This
+   PAUP* also writes the majority-rule frequencies as inner-node labels,
+   which the bundled version did not and wQFM-TREE cannot read; a wrapper
+   removes them after PAUP* exits (topology unchanged). Check: on
+   wQFM-TREE's own test data the consensus tree and the species tree are
+   identical to the outputs shipped by its authors.

@@ -31,8 +31,31 @@ chmod u+x wQFM-TREE-v1.0.1/paup
 # The bundled paup is a 32-bit program, which WSL1 cannot run; the 64-bit
 # PAUP* 4.0a169 for Ubuntu (phylosolutions.com/paup-test) replaces it when
 # downloaded (Amendment 1).
+# It needs libgfortran.so.4 and libpython2.7, which Ubuntu 24.04 no longer
+# ships; they come from the official Ubuntu 18.04 packages in
+# $DL/ubuntu18-libs, unpacked here and seen by PAUP* only (a wrapper sets
+# LD_LIBRARY_PATH; nothing is installed system-wide).
 if [ -f "$DL/paup4a169_ubuntu64.gz" ]; then
-    gunzip -c "$DL/paup4a169_ubuntu64.gz" > wQFM-TREE-v1.0.1/paup
+    gunzip -c "$DL/paup4a169_ubuntu64.gz" > wQFM-TREE-v1.0.1/paup.bin
+    chmod u+x wQFM-TREE-v1.0.1/paup.bin
+    rm -rf paup-libs && mkdir paup-libs
+    for d in "$DL"/ubuntu18-libs/*.deb; do dpkg-deb -x "$d" paup-libs; done
+    # PAUP* 4.0a169 also writes the majority-rule frequencies as labels of
+    # inner nodes, which the bundled version did not and wQFM-TREE cannot
+    # read; after PAUP* exits, the wrapper removes those labels from the
+    # tree files named in the command file (the topology is unchanged).
+    cat > wQFM-TREE-v1.0.1/paup <<WRAPPER
+#!/bin/bash
+LD_LIBRARY_PATH="$TOOLS/paup-libs/usr/lib/x86_64-linux-gnu" "$TOOLS/wQFM-TREE-v1.0.1/paup.bin" "\$@"
+code=\$?
+cmd="\${@: -1}"
+if [ -f "\$cmd" ]; then
+    for f in \$(grep -o 'treefile = [^ ]*' "\$cmd" | cut -d ' ' -f 3); do
+        [ -f "\$f" ] && sed -i -E '/^[[:space:]]*tree /s/\)[0-9.]+/)/g' "\$f"
+    done
+fi
+exit \$code
+WRAPPER
     chmod u+x wQFM-TREE-v1.0.1/paup
 fi
 
