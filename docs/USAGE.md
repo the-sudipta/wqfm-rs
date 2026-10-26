@@ -1,3 +1,5 @@
+<img src="../assets/icon/wqfm-rs-icon.svg" width="64" align="right" alt="">
+
 # Using wQFM-rs
 
 wQFM-rs builds a species tree from weighted quartets with the wQFM method,
@@ -34,9 +36,21 @@ wqfm-rs score -i quartets.txt -t species.nwk
 ...
 ```
 
-`amalgamate` writes the species tree to `species.nwk` and prints its score
-(the weight of the quartets the tree agrees with, of the total) to standard
-error. `score` prints the same three numbers for any tree, tab-separated.
+`amalgamate` writes the species tree to `species.nwk` and shows a short
+summary on standard error:
+
+```text
+wqfm-rs 0.1.0  amalgamate
+  read     555 quartets on 11 taxa  (quartets.txt)
+  tree     written to species.nwk
+  score    1,382 of 1,650 quartet weight  (83.76 %)
+  done     in 0.01 s
+```
+
+The score is the weight of the quartets the tree agrees with, of the total.
+On a terminal the summary is in colour, and long `gt2wq` runs show a
+progress bar; `-q` (`--quiet`) turns both off. Colours are also off when
+standard error is redirected or `NO_COLOR` is set. `score` prints the same three numbers for any tree, tab-separated.
 
 ## Commands
 
@@ -93,6 +107,9 @@ The file is read with wQFM's rules:
 - weights must be finite numbers (`1e309` or `NaN` are errors).
 
 ## Messages
+
+Errors start with `error:`, followed where possible by a `hint:` line
+saying what to do. The exit code is 1.
 
 | Message | Meaning and what to do |
 |---|---|

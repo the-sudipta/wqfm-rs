@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- wQFM-rs icon (`assets/`): in the README, the manual, a GitHub social
+  preview and embedded in `wqfm-rs.exe` with version details.
+- Command line: coloured help with examples, a header and aligned summary
+  on standard error, `error:` with a `hint:`, a progress bar for `gt2wq`,
+  `-q/--quiet`; results on standard output and in files unchanged.
+- Library: `count_quartets_with_progress`.
 - Library `wqfm`: initial bipartition, FM refinement, division with dummy
   taxa, joining, exhaustive oracle (3–10 taxa), quartet score, Newick and
   wQFM input format.

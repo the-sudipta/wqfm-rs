@@ -1,4 +1,10 @@
-# wQFM-rs
+<p align="center">
+  <img src="assets/icon/wqfm-rs-icon.svg" width="128" alt="wQFM-rs icon: a weighted quartet">
+</p>
+
+<h1 align="center">wQFM-rs</h1>
+
+<p align="center">Exact, fast weighted quartet amalgamation for species trees, in Rust</p>
 
 An exact Rust implementation of **wQFM**, the weighted quartet amalgamation
 method of Mahbub, Wahab, Reaz, Rahman and Bayzid (*Bioinformatics*
@@ -33,6 +39,10 @@ wqfm-rs amalgamate -i quartets.txt -o tree.nwk
 wqfm-rs score -i quartets.txt -t tree.nwk
 wqfm-rs compare a.nwk b.nwk
 ```
+
+Results go to the output file or standard output; a short summary (and a
+progress bar for long `gt2wq` runs) goes to standard error, in colour on a
+terminal. `-q` turns the summary off.
 
 `gt2wq` turns gene trees (one Newick per line) into weighted quartets,
 byte for byte as wQFM's `generate_wqrts.py` does, except that 4-sets a gene tree
