@@ -63,55 +63,9 @@ pub fn warning(text: &str) {
 /// `error: <message>` and, when one fits, `hint: <what to do>`.
 pub fn error(message: &str) {
     anstream::eprintln!("{ERROR}error:{ERROR:#} {message}");
-    if let Some(hint) = hint_for(message) {
+    if let Some(hint) = wqfm::error_hint(message) {
         anstream::eprintln!("{HINT}hint:{HINT:#}  {hint}");
     }
-}
-
-fn hint_for(message: &str) -> Option<&'static str> {
-    let hints = [
-        (
-            "an unresolved 4-set",
-            "lines like ((a,b,c,d)); n come from generate_wqrts.py on gene trees with \
-             polytomies; make the file with `wqfm-rs gt2wq`, which leaves them out",
-        ),
-        (
-            "quartets after an empty line",
-            "remove the empty line; wQFM would silently ignore everything after it",
-        ),
-        (
-            "not a finite number",
-            "weights must be ordinary numbers such as 3, 0.5 or 2e-3",
-        ),
-        (
-            "is not a number",
-            "the last field of each line is the weight, e.g. ((a,b),(c,d)); 0.75",
-        ),
-        (
-            "expected ((a,b),(c,d)); w",
-            "each line needs four names and a weight: ((a,b),(c,d)); w",
-        ),
-        (
-            "different taxa",
-            "both trees must have exactly the same leaf names",
-        ),
-        (
-            "unknown leaf",
-            "the tree has a leaf that does not appear in the quartet file",
-        ),
-        (
-            "a taxon appears twice",
-            "each leaf name may appear only once per gene tree",
-        ),
-        (
-            "invalid Newick",
-            "each tree must be one line of Newick ending with ;",
-        ),
-    ];
-    hints
-        .iter()
-        .find(|(pattern, _)| message.contains(pattern))
-        .map(|(_, hint)| *hint)
 }
 
 /// `1234567` as `1,234,567`.
@@ -220,13 +174,5 @@ mod tests {
         assert_eq!(weight(0.25), "0.250000");
         assert_eq!(seconds(0.004), "0.00 s");
         assert_eq!(seconds(75.0), "75.0 s");
-    }
-
-    #[test]
-    fn errors_get_hints() {
-        assert!(
-            hint_for("line 3: not a quartet ((a,b),(c,d)); w (an unresolved 4-set?)").is_some()
-        );
-        assert!(hint_for("something else").is_none());
     }
 }

@@ -21,6 +21,7 @@ mod edge_tree;
 mod fm;
 mod gene_trees;
 mod graph;
+mod hints;
 mod io;
 mod java_order;
 mod join;
@@ -36,6 +37,7 @@ mod topology;
 
 pub use amalgamate::{amalgamate, Amalgamation};
 pub use gene_trees::{count_quartets, count_quartets_with_progress, QuartetCounts};
+pub use hints::error_hint;
 pub use io::{counts_to_wqfm_input, parse_wqfm_input, read_wqfm_input, to_wqfm_input};
 #[doc(hidden)]
 pub use java_order::java_hashmap_orders;
