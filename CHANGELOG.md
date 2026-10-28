@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Desktop app `wqfm-rs-gui` (crate `wqfm-gui`, egui): input by file, drop or
+  built-in example, settings with tooltips, progress, tree view, copy and save.
+- Error hints moved into the library (`error_hint`), shared by both front ends.
 - wQFM-rs icon (`assets/`): in the README, the manual, a GitHub social
   preview and embedded in `wqfm-rs.exe` with version details.
 - Command line: coloured help with examples, a header and aligned summary

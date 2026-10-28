@@ -38,11 +38,14 @@ jobs:
         run: cargo test --release
       - name: Build
         run: cargo build --release --locked --bin wqfm-rs --target ${{ matrix.target }}
+      - name: Build the desktop app (native target; it needs the system's graphics libraries)
+        run: cargo build --release --locked --bin wqfm-rs-gui
       - name: Package
         run: |
           name="wqfm-rs-${GITHUB_REF_NAME}-${{ matrix.target }}"
           mkdir "$name"
           cp "target/${{ matrix.target }}/release/wqfm-rs${{ matrix.ext }}" LICENSE NOTICE README.md CITATION.cff "$name/"
+          cp "target/release/wqfm-rs-gui${{ matrix.ext }}" "$name/"
           if [ "${{ matrix.ext }}" = ".exe" ]; then 7z a "$name.zip" "$name" > /dev/null; else tar -czf "$name.tar.gz" "$name"; fi
       - uses: actions/upload-artifact@v4
         with:

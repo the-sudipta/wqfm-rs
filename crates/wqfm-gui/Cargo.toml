@@ -1,0 +1,30 @@
+[package]
+name = "wqfm-gui"
+description = "Desktop app of wQFM-rs: weighted quartets and gene trees to species trees"
+keywords = ["phylogenetics", "quartet", "species-tree", "bioinformatics", "gui"]
+categories = ["science", "gui"]
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "wqfm-rs-gui"
+path = "src/main.rs"
+
+[dependencies]
+wqfm = { path = "../wqfm", version = "0.1.0" }
+# The same egui version as the Q-MAWS GUI; built-in fonts so it looks the
+# same everywhere.
+eframe = { version = "0.36.2", default-features = false, features = ["accesskit", "default_fonts", "glow", "wayland", "x11"] }
+# The system's file dialogs (MIT; on Linux through the XDG portal).
+rfd = "0.17"
+# Window icon and documentation screenshots.
+png = "0.18"
+rayon = "1"
+
+[build-dependencies]
+winresource = "0.1"

@@ -90,6 +90,25 @@ Prints `satisfied weight`, `total weight` and their ratio.
 Two tree files on the same taxa. Prints the Robinson–Foulds distance and the
 normalised distance (divided by 2(n − 3)).
 
+## Desktop app
+
+`wqfm-rs-gui` runs the same two steps in a window, with the same results:
+
+1. **Input:** choose *Gene trees* or *Weighted quartets*, then *Choose file...*,
+   drop a file on the window, or *Use example* (wQFM's 11-taxon example). The
+   kind of file is guessed from its first line and can be changed.
+2. **Settings:** *Beta* (as `--beta`), and for gene trees *Threads* and *Keep
+   unresolved quartets* (as `--keep-unresolved`). Hover over any control for
+   what it does and its default.
+3. **Run:** *Build species tree*. The window stays usable; a bar shows the
+   progress of counting quartets.
+
+The result shows the number of taxa, quartets and gene trees, the quartet
+score, the time and the tree. *Copy Newick* puts the tree on the clipboard
+for a tree viewer; *Save tree...*, *Save quartets...* and *Save summary...*
+write files. Errors are shown in plain words with what to do, as in the
+command line.
+
 ## Input format of weighted quartets
 
 One quartet per line, as wQFM reads it: `((a,b),(c,d)); w`. Spaces are

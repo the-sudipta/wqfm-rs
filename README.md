@@ -52,6 +52,19 @@ for them; `--keep-unresolved` writes them anyway, see `docs/decisions.md`), and
 the partition score. `score` prints the satisfied weight, the total weight and
 their ratio.
 
+## Desktop app
+
+`wqfm-rs-gui` does the same in a window: choose or drop a file of gene trees or
+weighted quartets (or use the built-in example), keep or change the settings
+(every control explains itself on hover), press **Build species tree**, then
+view the tree, copy its Newick, or save the tree, the quartets and a summary.
+
+<p align="center"><img src="assets/screenshots/gui-example.png" width="820" alt="wQFM-rs desktop app showing the species tree of wQFM's 11-taxon example"></p>
+
+```bash
+cargo run --release -p wqfm-gui
+```
+
 ## Library
 
 ```rust
@@ -67,6 +80,7 @@ println!("{}", tree.newick);
 |---|---|
 | `crates/wqfm` | the library, one feature per file |
 | `crates/wqfm-cli` | the `wqfm-rs` command |
+| `crates/wqfm-gui` | the desktop app `wqfm-rs-gui` |
 | `docs/USAGE.md` | manual: worked example, options, input rules, messages |
 | `docs/decisions.md` | design decisions |
 | `validation/` | comparison records with the wQFM jar |
